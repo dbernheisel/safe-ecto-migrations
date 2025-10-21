@@ -75,10 +75,12 @@ wait_with_timeout() {
 }
 
 # Test concurrent write while operation is running
+# Returns 0 if write was blocked, 1 if it was NOT blocked
 test_concurrent_write() {
     local table="$1"
     local insert_sql="$2"
-    local timeout="${3:-30}"  # 3 second timeout (30 * 0.1s)
+    local timeout="${3:-50}"  # 5 second timeout (50 * 0.1s)
+    local block_threshold="${4:-10}"  # Consider blocked if takes > 1 second (10 * 0.1s)
 
     echo -e "${YELLOW}[Concurrent] Attempting write to $table...${NC}"
 
@@ -90,15 +92,25 @@ test_concurrent_write() {
     if wait_with_timeout "$pid" "$timeout"; then
         local end=$(date +%s.%N)
         local duration=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-        echo -e "${GREEN}✓ Write completed in ${duration}s${NC}"
-        rm -f "$output_file"
-        return 0
+
+        # Check if duration indicates blocking (>1 second suggests it waited)
+        local duration_deciseconds=$(awk "BEGIN {print int($end - $start) * 10}")
+
+        if [ "$duration_deciseconds" -gt "$block_threshold" ]; then
+            echo -e "${RED}✗ Write BLOCKED (took ${duration}s, threshold ${block_threshold}00ms)${NC}"
+            rm -f "$output_file"
+            return 0  # Was blocked
+        else
+            echo -e "${GREEN}✓ Write completed quickly in ${duration}s${NC}"
+            rm -f "$output_file"
+            return 1  # Was NOT blocked
+        fi
     else
         echo -e "${RED}✗ Write BLOCKED (timed out after ${timeout}00ms)${NC}"
         kill -9 "$pid" 2>/dev/null
         wait "$pid" 2>/dev/null
         rm -f "$output_file"
-        return 1
+        return 0  # Was blocked
     fi
 }
 

@@ -31,10 +31,11 @@ sleep 1
 echo -e "\n${CYAN}=== Testing concurrent write during index creation ===${NC}"
 INSERT_SQL="INSERT INTO posts (slug, title, content) VALUES ('test-bad-' || floor(random() * 1000000), 'Test Post', 'Test Content');"
 
+# test_concurrent_write returns 0 if blocked, 1 if not blocked
 if test_concurrent_write "posts" "$INSERT_SQL" 50; then
-    echo -e "${RED}✗ Unexpected: Write did not block (should have blocked)${NC}"
-else
     echo -e "${GREEN}✓ Expected: Write was BLOCKED by index creation${NC}"
+else
+    echo -e "${RED}✗ Unexpected: Write did not block (should have blocked)${NC}"
 fi
 
 # Wait for background process to complete
@@ -65,10 +66,11 @@ sleep 1
 echo -e "\n${CYAN}=== Testing concurrent write during CONCURRENT index creation ===${NC}"
 INSERT_SQL="INSERT INTO posts (slug, title, content) VALUES ('test-good-' || floor(random() * 1000000), 'Test Post', 'Test Content');"
 
+# test_concurrent_write returns 0 if blocked, 1 if not blocked
 if test_concurrent_write "posts" "$INSERT_SQL" 50; then
-    echo -e "${GREEN}✓ Expected: Write completed successfully (not blocked)${NC}"
-else
     echo -e "${RED}✗ Unexpected: Write was blocked (should not block)${NC}"
+else
+    echo -e "${GREEN}✓ Expected: Write completed successfully (not blocked)${NC}"
 fi
 
 # Wait for background process to complete

@@ -37,9 +37,10 @@ echo -e "\n${CYAN}=== Testing concurrent UPDATE during SET NOT NULL ===${NC}"
 UPDATE_SQL="UPDATE products SET active = true WHERE id = (SELECT id FROM products ORDER BY random() LIMIT 1);"
 
 if test_concurrent_write "products" "$UPDATE_SQL" 50; then
-    echo -e "${RED}✗ Unexpected: UPDATE did not block${NC}"
-else
+    # test_concurrent_write returns 0 if blocked, 1 if not blocked
     echo -e "${GREEN}✓ Expected: UPDATE was BLOCKED${NC}"
+else
+    echo -e "${RED}✗ Unexpected: UPDATE did not block${NC}"
 fi
 
 # Wait for background process to complete
@@ -84,9 +85,10 @@ echo -e "\n${CYAN}=== Testing concurrent UPDATE during validation ===${NC}"
 UPDATE_SQL="UPDATE products SET active = true WHERE id = (SELECT id FROM products ORDER BY random() LIMIT 1);"
 
 if test_concurrent_write "products" "$UPDATE_SQL" 30; then
-    echo -e "${GREEN}✓ Expected: UPDATE completed during validation (not blocked)${NC}"
-else
+    # test_concurrent_write returns 0 if blocked, 1 if not blocked
     echo -e "${RED}✗ Unexpected: UPDATE was blocked during validation${NC}"
+else
+    echo -e "${GREEN}✓ Expected: UPDATE completed during validation (not blocked)${NC}"
 fi
 
 # Wait for background process to complete

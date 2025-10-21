@@ -31,10 +31,11 @@ sleep 1
 echo -e "\n${CYAN}=== Test 1: Concurrent write to posts table ===${NC}"
 INSERT_SQL="INSERT INTO posts (title, content) VALUES ('Test Post ' || floor(random() * 1000000), 'Test Content');"
 
+# test_concurrent_write returns 0 if blocked, 1 if not blocked
 if test_concurrent_write "posts" "$INSERT_SQL" 50; then
-    echo -e "${RED}✗ Unexpected: Write to posts did not block${NC}"
-else
     echo -e "${GREEN}✓ Expected: Write to posts was BLOCKED${NC}"
+else
+    echo -e "${RED}✗ Unexpected: Write to posts did not block${NC}"
 fi
 
 # Test 2: Attempt concurrent write to groups - should ALSO BLOCK
@@ -42,9 +43,9 @@ echo -e "\n${CYAN}=== Test 2: Concurrent write to groups table ===${NC}"
 INSERT_SQL="INSERT INTO groups (name) VALUES ('Test Group ' || floor(random() * 1000000));"
 
 if test_concurrent_write "groups" "$INSERT_SQL" 50; then
-    echo -e "${RED}✗ Unexpected: Write to groups did not block${NC}"
-else
     echo -e "${GREEN}✓ Expected: Write to groups was ALSO BLOCKED${NC}"
+else
+    echo -e "${RED}✗ Unexpected: Write to groups did not block${NC}"
 fi
 
 # Wait for background process to complete

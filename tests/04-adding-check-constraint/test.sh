@@ -32,9 +32,10 @@ echo -e "\n${CYAN}=== Testing concurrent UPDATE during constraint creation ===${
 UPDATE_SQL="UPDATE products SET price = price + 0.01 WHERE id = (SELECT id FROM products ORDER BY random() LIMIT 1);"
 
 if test_concurrent_write "products" "$UPDATE_SQL" 50; then
-    echo -e "${RED}✗ Unexpected: UPDATE did not block${NC}"
-else
+    # test_concurrent_write returns 0 if blocked, 1 if not blocked
     echo -e "${GREEN}✓ Expected: UPDATE was BLOCKED${NC}"
+else
+    echo -e "${RED}✗ Unexpected: UPDATE did not block${NC}"
 fi
 
 # Wait for background process to complete
