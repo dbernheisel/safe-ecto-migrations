@@ -15,7 +15,7 @@ BEGIN;
 ALTER TABLE posts ADD COLUMN group_id INTEGER REFERENCES groups(id);
 
 -- Add a sleep to give concurrent operations time to attempt writes
-SELECT pg_sleep(3);
+SELECT pg_sleep(6);
 
 COMMIT;
 

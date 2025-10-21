@@ -19,7 +19,7 @@ echo -e "${RED}Testing BAD approach (with validation)${NC}"
 echo -e "${RED}========================================${NC}\n"
 
 # Start the FK creation in background
-echo -e "${YELLOW}Starting FK creation with validation (with 3 second delay)...${NC}"
+echo -e "${YELLOW}Starting FK creation with validation (with 6 second delay)...${NC}"
 result=$(run_sql_file_background "migrations/bad.sql" "Create FK with validation")
 bg_pid=$(echo "$result" | cut -d'|' -f1)
 bg_output=$(echo "$result" | cut -d'|' -f2)
