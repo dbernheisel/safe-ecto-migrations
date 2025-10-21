@@ -147,6 +147,34 @@ show_blocking_queries() {
             WHERE NOT blocked_locks.granted;" 2>/dev/null || true
 }
 
+# Wait for PostgreSQL to be ready with timeout
+wait_for_postgres() {
+    local max_attempts="${1:-60}"  # Default 60 seconds
+    local attempt=0
+
+    echo "Waiting for PostgreSQL (timeout: ${max_attempts}s)..."
+
+    while [ $attempt -lt $max_attempts ]; do
+        if PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c '\q' 2>/dev/null; then
+            echo -e "${GREEN}PostgreSQL is ready${NC}"
+            return 0
+        fi
+
+        attempt=$((attempt + 1))
+        if [ $((attempt % 10)) -eq 0 ]; then
+            echo "Still waiting for PostgreSQL... (${attempt}s)"
+        fi
+        sleep 1
+    done
+
+    echo -e "${RED}ERROR: PostgreSQL did not become ready within ${max_attempts} seconds${NC}"
+    echo -e "${YELLOW}Troubleshooting:${NC}"
+    echo "  1. Check if Docker is running: docker ps"
+    echo "  2. Check container logs: docker compose logs postgres"
+    echo "  3. Verify container is running: docker compose ps"
+    return 1
+}
+
 # Clean up background processes
 cleanup_background() {
     local pid=$1
@@ -164,4 +192,5 @@ export -f wait_with_timeout
 export -f test_concurrent_write
 export -f show_table_locks
 export -f show_blocking_queries
+export -f wait_for_postgres
 export -f cleanup_background

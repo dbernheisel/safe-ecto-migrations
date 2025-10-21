@@ -7,12 +7,9 @@ source "$SCRIPT_DIR/../shared/concurrent-test-helpers.sh"
 
 echo -e "${BLUE}=== Testing: Setting NOT NULL on Existing Column ===${NC}\n"
 
-# Wait for postgres
-echo "Waiting for PostgreSQL..."
-until PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c '\q' 2>/dev/null; do
-    sleep 1
-done
-echo -e "${GREEN}PostgreSQL is ready${NC}\n"
+# Wait for postgres with timeout
+wait_for_postgres 60 || exit 1
+echo ""
 
 # Show Postgres version
 PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
