@@ -27,16 +27,20 @@ Each test directory contains:
 ### Prerequisites
 
 - Docker and Docker Compose installed
-- `psql` client installed (for test scripts)
+- **No need for psql or PostgreSQL on host** - tests run inside containers
 
 ### Running Individual Tests
 
 ```bash
 cd tests/01-adding-index
-docker-compose up -d
-./test.sh
-docker-compose down -v
+./run.sh
 ```
+
+The `run.sh` script will:
+1. Start the PostgreSQL container
+2. Wait for it to be ready
+3. Run tests inside the container (no port conflicts!)
+4. Clean up automatically
 
 ### Running All Tests
 
@@ -48,8 +52,10 @@ From the `tests/` directory:
 
 This will:
 1. Run each test scenario sequentially
-2. Show timing and lock information
-3. Clean up containers after each test
+2. Each test runs in its own isolated container
+3. Show timing and lock information
+4. Automatic cleanup after each test
+5. **No port conflicts** - tests don't expose ports to host
 
 ## What These Tests Demonstrate
 

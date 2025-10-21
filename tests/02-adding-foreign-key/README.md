@@ -49,22 +49,17 @@ ALTER TABLE posts VALIDATE CONSTRAINT posts_group_id_fkey;
 
 ## Running the Test
 
-1. Start the PostgreSQL container:
+Simply run:
 ```bash
-docker-compose up -d
+./run.sh
 ```
 
-2. Run the test script:
-```bash
-chmod +x test.sh
-./test.sh
-```
+This script will:
+1. Start the PostgreSQL container
+2. Run the test inside the container
+3. Clean up automatically
 
-3. Clean up:
-```bash
-docker-compose down -v
-```
-
+No need to manage Docker or PostgreSQL manually!
 ## Ecto Migration Example
 
 ```elixir

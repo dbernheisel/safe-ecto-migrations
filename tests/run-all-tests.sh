@@ -40,41 +40,22 @@ run_test() {
 
     cd "$test_dir"
 
-    # Check if test.sh exists
-    if [ ! -f "test.sh" ]; then
-        echo -e "${YELLOW}⊘ Skipping - no test.sh found${NC}\n"
+    # Check if run.sh exists
+    if [ ! -f "run.sh" ]; then
+        echo -e "${YELLOW}⊘ Skipping - no run.sh found${NC}\n"
         ((SKIPPED++))
         cd ..
         return
     fi
 
-    # Start docker-compose
-    echo "Starting PostgreSQL container..."
-    if docker compose up -d >/dev/null 2>&1; then
-        echo -e "${GREEN}✓ Container started${NC}\n"
-    else
-        echo -e "${RED}✗ Failed to start container${NC}\n"
-        ((FAILED++))
-        cd ..
-        return
-    fi
-
-    # Wait a moment for postgres to initialize
-    sleep 3
-
-    # Run the test
-    if ./test.sh; then
+    # Run the test (run.sh handles container lifecycle)
+    if ./run.sh; then
         echo -e "\n${GREEN}${BOLD}✓ Test passed: $test_name${NC}\n"
         ((PASSED++))
     else
         echo -e "\n${RED}${BOLD}✗ Test failed: $test_name${NC}\n"
         ((FAILED++))
     fi
-
-    # Cleanup
-    echo "Cleaning up..."
-    docker compose down -v >/dev/null 2>&1
-    echo -e "${GREEN}✓ Cleaned up${NC}\n"
 
     cd ..
     sleep 2
