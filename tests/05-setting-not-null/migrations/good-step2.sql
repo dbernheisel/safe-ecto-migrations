@@ -10,17 +10,8 @@
 -- Validate the constraint
 ALTER TABLE products VALIDATE CONSTRAINT active_not_null;
 
+-- Add a sleep to give concurrent operations time to test
+SELECT pg_sleep(2);
+
 \echo ''
 \echo '=== Constraint validated ==='
-
--- Verify the constraint is validated
-SELECT
-    conname,
-    contype,
-    convalidated
-FROM pg_constraint
-WHERE conrelid = 'products'::regclass
-AND conname = 'active_not_null';
-
-\echo ''
-\echo 'Notice: convalidated = true'

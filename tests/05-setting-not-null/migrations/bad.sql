@@ -11,20 +11,10 @@ BEGIN;
 -- This scans the entire table to verify no NULLs exist
 ALTER TABLE products ALTER COLUMN active SET NOT NULL;
 
+-- Add a sleep to give concurrent operations time to test
+SELECT pg_sleep(3);
+
 COMMIT;
 
 \echo ''
 \echo '=== NOT NULL constraint set ==='
-
--- Verify the constraint
-SELECT
-    column_name,
-    is_nullable
-FROM information_schema.columns
-WHERE table_name = 'products'
-AND column_name = 'active';
-
--- Test the constraint
-\echo ''
-\echo 'Testing constraint (should fail):'
-INSERT INTO products (name, price) VALUES ('Test Product', 10.00);

@@ -10,18 +10,8 @@
 -- This scans the table but doesn't block reads or writes
 ALTER TABLE posts VALIDATE CONSTRAINT posts_group_id_safe_fkey;
 
+-- Add a sleep to give concurrent operations time to test
+SELECT pg_sleep(2);
+
 \echo ''
 \echo '=== Constraint validated ==='
-
--- Verify the constraint is now validated
-SELECT
-    conname,
-    contype,
-    convalidated
-FROM pg_constraint
-WHERE conname = 'posts_group_id_safe_fkey'
-AND conrelid = 'posts'::regclass;
-
-\echo ''
-\echo 'Notice: convalidated = true'
-\echo 'The constraint is now fully enforced on all rows'

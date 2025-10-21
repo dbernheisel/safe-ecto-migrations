@@ -6,26 +6,18 @@
 \echo '=== Adding column and foreign key WITH validation ==='
 \echo 'This will block writes to both posts and groups tables'
 
+-- Clean up if exists
+ALTER TABLE posts DROP COLUMN IF EXISTS group_id CASCADE;
+
 BEGIN;
 
 -- Add the column with foreign key (validates by default)
 ALTER TABLE posts ADD COLUMN group_id INTEGER REFERENCES groups(id);
 
--- Show the locks while the transaction is open
-\echo ''
-\echo 'Locks acquired:'
-SELECT * FROM show_locks();
+-- Add a sleep to give concurrent operations time to attempt writes
+SELECT pg_sleep(3);
 
 COMMIT;
 
 \echo ''
 \echo '=== Foreign key added ==='
-
--- Verify the constraint
-SELECT
-    conname,
-    contype,
-    convalidated
-FROM pg_constraint
-WHERE conname LIKE '%group%'
-AND conrelid = 'posts'::regclass;
