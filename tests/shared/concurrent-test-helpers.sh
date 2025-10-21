@@ -24,7 +24,8 @@ run_sql_background() {
     local description="$2"
     local output_file=$(mktemp)
 
-    echo -e "${CYAN}[Background] Starting: $description${NC}"
+    # Send message to stderr so it doesn't interfere with return value
+    echo -e "${CYAN}[Background] Starting: $description${NC}" >&2
 
     # Run in background and capture PID
     PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
@@ -40,7 +41,8 @@ run_sql_file_background() {
     local description="$2"
     local output_file=$(mktemp)
 
-    echo -e "${CYAN}[Background] Starting: $description${NC}"
+    # Send message to stderr so it doesn't interfere with return value
+    echo -e "${CYAN}[Background] Starting: $description${NC}" >&2
 
     # Run in background and capture PID
     PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
@@ -87,7 +89,7 @@ test_concurrent_write() {
 
     if wait_with_timeout "$pid" "$timeout"; then
         local end=$(date +%s.%N)
-        local duration=$(echo "$end - $start" | bc)
+        local duration=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
         echo -e "${GREEN}✓ Write completed in ${duration}s${NC}"
         rm -f "$output_file"
         return 0
