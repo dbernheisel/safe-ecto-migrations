@@ -32,17 +32,33 @@ CREATE INDEX CONCURRENTLY posts_slug_idx ON posts(slug);
 
 ## Running the Test
 
-Simply run:
+### Two Testing Modes
+
+This test supports two modes to demonstrate blocking behavior:
+
+**1. Programmatic Mode (default)** - Automated testing with blocking detection:
 ```bash
 ./run.sh
 ```
 
-This script will:
-1. Start the PostgreSQL container
-2. Run the test inside the container
-3. Clean up automatically
+This mode:
+- Runs operations in background and tests if concurrent writes block
+- Uses timing thresholds to detect blocking (>1s = blocked)
+- Shows clear ✓/✗ results
+- Good for CI/automated testing
 
-No need to manage Docker or PostgreSQL manually!
+**2. Visual Mode** - Live demonstration you can actually see:
+```bash
+./run-visual.sh
+```
+
+This mode:
+- Starts a continuous write loop showing operations/sec
+- **You can SEE the counter freeze** when blocking occurs
+- Timestamp shows exactly when blocking happens
+- Much more intuitive for demonstrations and learning
+
+**Recommended**: Try the visual mode first to actually see the blocking effect, then use programmatic mode for verification.
 ## Ecto Migration Example
 
 ```elixir
