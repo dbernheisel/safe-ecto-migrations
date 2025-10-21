@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: test_adding_check_constraint
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - ./migrations:/migrations
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c log_lock_waits=on

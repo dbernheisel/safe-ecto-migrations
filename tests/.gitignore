@@ -1,0 +1,7 @@
+# PostgreSQL data volumes
+pg_data/
+**/pg_data/
+
+# Docker volumes
+*.sql.bak
+*.log
